@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout - Aura Skin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS & RESET
+   ═══════════════════════════════════════════ */
+:root{
+  --black:#000;
+  --white:#fff;
+  --off-white:#faf9f7;
+  --gray:#f5f5f5;
+  --gray-mid:#e8e4df;
+  --text-muted:#8a8078;
+  --gold:#c9a84c;
+  --gold-light:#e8d5a3;
+  --gold-dark:#8b6914;
+  --red:#c0392b;
+  --green:#27ae60;
+  --shadow-sm:rgba(0,0,0,0.06);
+  --shadow-md:rgba(0,0,0,0.1);
+  --radius:8px;
+  --transition:0.3s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Montserrat',sans-serif;
+  color:var(--black);
+  background:var(--off-white);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ═══════════════════════════════════════════
+   NAV
+   ═══════════════════════════════════════════ */
+nav{
+  position:sticky;top:0;width:100%;
+  background:var(--white);
+  padding:1rem 5%;
+  display:flex;justify-content:space-between;align-items:center;
+  z-index:1000;
+  box-shadow:0 2px 10px var(--shadow-sm);
+}
+nav .logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.6rem;font-weight:600;
+  color:var(--black);text-decoration:none;
+  white-space:nowrap;z-index:1001;position:relative;
+}
+nav ul{display:flex;gap:2rem;list-style:none;}
+nav a{
+  text-decoration:none;color:var(--black);
+  font-weight:500;font-size:0.85rem;
+  letter-spacing:0.5px;transition:color var(--transition);
+}
+nav a:hover{color:var(--text-muted);}
+nav a.active{color:var(--gold);font-weight:600;}
+
+.hamburger{
+  display:none;flex-direction:column;justify-content:center;
+  gap:5px;width:28px;height:28px;
+  cursor:pointer;background:none;border:none;padding:0;
+  z-index:1001;position:relative;
+}
+.hamburger span{
+  display:block;width:100%;height:2.5px;
+  background:var(--black);border-radius:2px;
+  transition:transform var(--transition),opacity var(--transition);
+}
+.hamburger.active span:nth-child(1){transform:translateY(7.5px) rotate(45deg);}
+.hamburger.active span:nth-child(2){opacity:0;}
+.hamburger.active span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg);}
+
+@media(max-width:768px){
+  .hamburger{display:flex;}
+  nav ul{
+    display:none;flex-direction:column;
+    position:fixed;top:0;left:0;width:100%;height:100vh;
+    background:var(--white);padding-top:5rem;
+    align-items:center;gap:1.8rem;
+    box-shadow:0 4px 20px var(--shadow-md);z-index:999;
+  }
+  nav ul.open{display:flex;}
+  nav ul li a{font-size:1.1rem;letter-spacing:1px;}
+  nav .logo{font-size:1.4rem;}
+}
+
+/* ═══════════════════════════════════════════
+   PAGE HEADER
+   ═══════════════════════════════════════════ */
+.page-header{
+  text-align:center;padding:3rem 5% 1.6rem;
+}
+.page-header h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.8rem;font-weight:300;
+  letter-spacing:6px;text-transform:uppercase;
+  color:var(--black);margin-bottom:0.3rem;
+}
+.page-header .header-sub{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;font-size:1.05rem;
+  color:var(--text-muted);letter-spacing:1px;
+}
+.page-header .divider{
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;margin-top:1.2rem;
+}
+.page-header .divider .line{
+  width:50px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.page-header .divider .diamond{
+  width:7px;height:7px;
+  background:var(--gold);transform:rotate(45deg);
+}
+
+/* ═══════════════════════════════════════════
+   STEP PROGRESS BAR
+   ═══════════════════════════════════════════ */
+.steps{
+  display:flex;justify-content:center;align-items:center;
+  gap:0;max-width:680px;margin:1.8rem auto 0;
+  padding:0 5%;
+}
+.step{
+  display:flex;flex-direction:column;align-items:center;
+  flex:1;position:relative;
+}
+.step-line{
+  position:absolute;top:14px;left:50%;
+  width:100%;height:2px;
+  background:var(--gray-mid);z-index:0;
+}
+.step:last-child .step-line{display:none;}
+.step-line.done{background:var(--gold);}
+
+.step-dot{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:2px solid var(--gray-mid);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;
+  font-size:0.7rem;font-weight:600;color:var(--text-muted);
+  transition:all var(--transition);
+}
+.step.done .step-dot{
+  background:var(--gold);border-color:var(--gold);color:var(--white);
+}
+.step.active .step-dot{
+  border-color:var(--gold);color:var(--gold);
+  box-shadow:0 0 0 4px rgba(201,168,76,0.15);
+}
+.step-label{
+  margin-top:6px;font-size:0.65rem;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text-muted);position:relative;z-index:1;
+  text-align:center;
+}
+.step.done .step-label,.step.active .step-label{color:var(--gold);font-weight:500;}
+
+/* ═══════════════════════════════════════════
+   CHECKOUT LAYOUT
+   ═══════════════════════════════════════════ */
+.checkout-layout{
+  display:grid;
+  grid-template-columns:1fr 340px;
+  gap:2rem;
+  max-width:1100px;
+  margin:2rem auto 0;
+  padding:0 5% 4rem;
+  width:100%;
+}
+
+/* ═══════════════════════════════════════════
+   FORM PANELS
+   ═══════════════════════════════════════════ */
+.form-panel{
+  background:var(--white);
+  border-radius:var(--radius);
+  box-shadow:0 4px 24px var(--shadow-sm);
+  overflow:hidden;
+  margin-bottom:1rem;
+}
+.panel-head{
+  padding:1.3rem 1.6rem;
+  background:var(--gray);
+  border-bottom:1px solid var(--gray-mid);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.panel-head h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.25rem;font-weight:500;
+  letter-spacing:1.5px;text-transform:uppercase;
+}
+.panel-head .edit-link{
+  font-size:0.7rem;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--gold);
+  text-decoration:none;font-weight:500;
+  cursor:pointer;transition:opacity var(--transition);
+}
+.panel-head .edit-link:hover{opacity:0.7;}
+
+.panel-body{
+  padding:1.6rem;
+  display:none;
+  animation:panelIn 0.3s ease both;
+}
+.panel-body.open{display:block;}
+
+@keyframes panelIn{
+  from{opacity:0;transform:translateY(6px);}
+  to  {opacity:1;transform:translateY(0);}
+}
+
+.panel-summary{
+  padding:0.9rem 1.6rem;
+  font-size:0.78rem;color:var(--text-muted);
+  border-bottom:1px solid var(--gray-mid);
+  display:none;line-height:1.7;
+}
+.panel-summary.show{display:block;}
+
+/* ─── Form fields ─── */
+.field-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+  margin-bottom:1rem;
+}
+.field-row.full{grid-template-columns:1fr;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{
+  font-size:0.7rem;font-weight:500;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text-muted);
+}
+.field input,
+.field select{
+  padding:0.75rem 0.9rem;
+  border:1.5px solid var(--gray-mid);
+  border-radius:6px;
+  font-size:0.88rem;
+  font-family:'Montserrat',sans-serif;
+  color:var(--black);
+  background:var(--white);
+  transition:border-color var(--transition),box-shadow var(--transition);
+  outline:none;
+  -webkit-appearance:none;appearance:none;
+}
+.field input:focus,
+.field select:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(201,168,76,0.12);
+}
+.field input.error{border-color:var(--red);}
+.field .err-msg{
+  font-size:0.65rem;color:var(--red);
+  letter-spacing:0.3px;margin-top:-2px;
+  display:none;
+}
+.field .err-msg.show{display:block;}
+
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8078'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+  padding-right:34px;cursor:pointer;
+}
+
+/* Buttons */
+.btn-row{margin-top:1.4rem;display:flex;gap:0.8rem;align-items:center;}
+.btn-next{
+  flex:1;padding:0.88rem;
+  background:var(--black);color:var(--white);
+  border:none;border-radius:6px;
+  font-family:'Montserrat',sans-serif;
+  font-size:0.72rem;font-weight:500;
+  letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;
+  transition:background var(--transition),box-shadow var(--transition);
+}
+.btn-next:hover{background:#222;box-shadow:0 4px 18px rgba(0,0,0,0.25);}
+.btn-back{
+  padding:0.88rem 1.4rem;
+  background:none;color:var(--text-muted);
+  border:1.5px solid var(--gray-mid);border-radius:6px;
+  font-family:'Montserrat',sans-serif;
+  font-size:0.72rem;font-weight:500;
+  letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;
+  transition:all var(--transition);
+}
+.btn-back:hover{border-color:var(--black);color:var(--black);}
+
+.secure-badge{
+  display:flex;align-items:center;justify-content:center;
+  gap:6px;margin-top:1.2rem;
+  font-size:0.68rem;color:var(--text-muted);letter-spacing:0.8px;
+}
+
+/* ═══════════════════════════════════════════
+   ORDER SUMMARY SIDEBAR
+   ═══════════════════════════════════════════ */
+.order-summary{
+  background:var(--white);
+  border-radius:var(--radius);
+  box-shadow:0 4px 24px var(--shadow-sm);
+  padding:1.8rem;
+  height:fit-content;
+  position:sticky;top:90px;
+}
+.order-summary h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.4rem;font-weight:400;
+  letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:1.2rem;padding-bottom:0.9rem;
+  border-bottom:1px solid var(--gray-mid);
+}
+.summary-item{
+  display:flex;align-items:center;gap:0.8rem;
+  padding:0.6rem 0;border-bottom:1px solid var(--gray-mid);
+}
+.summary-item:last-of-type{border-bottom:none;}
+.summary-item .s-img{
+  width:42px;height:42px;border-radius:5px;
+  background:var(--gray);flex-shrink:0;overflow:hidden;
+}
+.summary-item .s-img img{width:100%;height:100%;object-fit:cover;}
+.summary-item .s-info{flex:1;min-width:0;}
+.summary-item .s-info h5{
+  font-family:'Cormorant Garamond',serif;
+  font-size:0.95rem;font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.summary-item .s-info span{font-size:0.68rem;color:var(--text-muted);}
+.summary-item .s-price{font-size:0.82rem;font-weight:600;flex-shrink:0;}
+
+.summary-divider{height:1px;background:var(--gray-mid);margin:1rem 0;}
+.summary-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0.5rem 0;font-size:0.78rem;color:var(--text-muted);
+}
+.summary-row .value{font-weight:500;color:var(--black);}
+.summary-total{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0.9rem 0;margin-top:0.4rem;
+}
+.summary-total .label{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-weight:500;
+  letter-spacing:1px;text-transform:uppercase;
+}
+.summary-total .value{font-size:1.2rem;font-weight:600;}
+
+/* ═══════════════════════════════════════════
+   PAYMENT METHOD PILLS
+   ═══════════════════════════════════════════ */
+.pay-methods{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.4rem;}
+.pay-pill{
+  flex:1;min-width:120px;
+  padding:0.75rem 0.9rem;
+  border:1.5px solid var(--gray-mid);
+  border-radius:8px;
+  background:var(--white);
+  cursor:pointer;
+  transition:all var(--transition);
+  text-align:center;
+}
+.pay-pill .pill-icon{font-size:1.3rem;margin-bottom:3px;}
+.pay-pill .pill-label{
+  font-size:0.68rem;font-weight:500;
+  letter-spacing:0.8px;color:var(--text-muted);
+  display:block;
+}
+.pay-pill.active{
+  border-color:var(--gold);
+  background:#fffbf0;
+  box-shadow:0 0 0 3px rgba(201,168,76,0.12);
+}
+.pay-pill.active .pill-label{color:var(--gold);font-weight:600;}
+.pay-pill.soon{
+  opacity:0.45;cursor:not-allowed;
+  position:relative;
+}
+.pay-pill.soon .soon-tag{
+  position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  background:var(--gold);color:var(--white);
+  font-size:0.55rem;font-weight:600;letter-spacing:1px;
+  padding:2px 7px;border-radius:20px;white-space:nowrap;
+  text-transform:uppercase;
+}
+
+/* ─── Bank details box ─── */
+.bank-box{
+  background:#f8f6f1;
+  border:1.5px solid var(--gold-light);
+  border-radius:8px;
+  padding:1.2rem 1.4rem;
+  margin-bottom:1rem;
+}
+.bank-box .bank-title{
+  font-size:0.68rem;font-weight:600;
+  letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:0.9rem;
+  display:flex;align-items:center;gap:6px;
+}
+.bank-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0.45rem 0;
+  border-bottom:1px solid rgba(200,168,76,0.18);
+}
+.bank-row:last-of-type{border-bottom:none;}
+.bank-row .b-label{
+  font-size:0.72rem;color:var(--text-muted);letter-spacing:0.3px;
+}
+.bank-row .b-value{
+  font-size:0.78rem;font-weight:600;color:var(--black);
+  letter-spacing:0.3px;
+}
+.copy-btn{
+  background:none;border:none;cursor:pointer;
+  margin-left:8px;font-size:0.75rem;color:var(--gold);
+  transition:opacity var(--transition);
+  vertical-align:middle;padding:0;
+  font-family:'Montserrat',sans-serif;
+}
+.copy-btn:hover{opacity:0.6;}
+.copy-btn.copied{color:var(--green);}
+
+.transfer-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:#fffbf0;border:1px solid rgba(201,168,76,0.25);
+  border-radius:7px;padding:0.85rem 1rem;
+  margin-top:0.6rem;
+}
+.transfer-note .note-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+.transfer-note p{font-size:0.72rem;color:var(--text-muted);line-height:1.6;}
+.transfer-note strong{color:var(--black);}
+
+/* ═══════════════════════════════════════════
+   CONFIRMATION & WHATSAPP RECEIPT
+   ═══════════════════════════════════════════ */
+.confirmation{
+  display:none;
+  flex-direction:column;align-items:center;
+  text-align:center;padding:4rem 5%;
+  grid-column:1/-1;
+}
+.confirmation.show{display:flex;}
+
+.confirm-icon{
+  width:100px;height:100px;border-radius:50%;
+  background:linear-gradient(135deg,#27ae60,#2ecc71);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:2rem;
+  box-shadow:0 6px 24px rgba(39,174,96,0.3);
+  animation:popIn 0.5s cubic-bezier(.175,.885,.32,1.275) both;
+}
+.confirm-icon svg{width:48px;height:48px;stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+@keyframes popIn{
+  from{transform:scale(0);opacity:0;}
+  to  {transform:scale(1);opacity:1;}
+}
+.confirmation h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.2rem;font-weight:400;
+  letter-spacing:3px;margin-bottom:0.5rem;
+  animation:fadeUp 0.5s 0.2s ease both;
+}
+.confirmation p{
+  color:var(--text-muted);font-size:0.85rem;
+  max-width:420px;line-height:1.7;margin-bottom:0.3rem;
+  animation:fadeUp 0.5s 0.35s ease both;
+}
+.confirmation .order-id{
+  font-weight:600;color:var(--gold);font-size:0.82rem;
+  letter-spacing:1px;margin-bottom:2rem;
+  animation:fadeUp 0.5s 0.45s ease both;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(12px);}
+  to  {opacity:1;transform:translateY(0);}
+}
+
+.wa-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:0.82rem 1.8rem;
+  background:#25ae4e;color:var(--white);
+  text-decoration:none;border-radius:6px;
+  font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;
+  font-weight:500;font-family:'Montserrat',sans-serif;
+  transition:background var(--transition),box-shadow var(--transition);
+  animation:fadeUp 0.5s 0.5s ease both;
+  border:none;cursor:pointer;
+}
+.wa-btn:hover{background:#1e9a44;box-shadow:0 4px 16px rgba(37,174,78,0.35);}
+.wa-btn .wa-icon{font-size:1rem;}
+
+.confirmation .btn-home{
+  display:inline-block;
+  padding:0.82rem 2.4rem;
+  border:1px solid var(--gold);color:var(--gold);
+  text-decoration:none;border-radius:6px;
+  font-size:0.72rem;letter-spacing:2.5px;text-transform:uppercase;
+  font-weight:500;font-family:'Montserrat',sans-serif;
+  transition:background var(--transition),color var(--transition);
+  animation:fadeUp 0.5s 0.55s ease both;
+}
+.confirmation .btn-home:hover{background:var(--gold);color:var(--white);}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+footer{
+  background:var(--black);color:var(--white);
+  padding:2rem 5%;text-align:center;margin-top:auto;
+}
+.footer-inner{
+  display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:0.8rem;
+}
+footer .logo-sm{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.2rem;font-weight:600;letter-spacing:2px;
+}
+footer .copy{font-size:0.75rem;color:#666;}
+footer .footer-links{display:flex;gap:1.4rem;}
+footer .footer-links a{
+  color:#888;text-decoration:none;font-size:0.75rem;
+  letter-spacing:0.5px;transition:color var(--transition);
+}
+footer .footer-links a:hover{color:var(--gold);}
+@media(max-width:600px){.footer-inner{flex-direction:column;text-align:center;}}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media(max-width:780px){
+  .checkout-layout{
+    grid-template-columns:1fr;
+    padding:0 4% 3rem;
+  }
+  .order-summary{position:static;order:-1;}
+  .field-row{grid-template-columns:1fr;}
+  .page-header h1{font-size:2rem;letter-spacing:4px;}
+}
+@media(max-width:480px){
+  .steps .step-label{font-size:0.58rem;letter-spacing:1px;}
+  .page-header h1{font-size:1.7rem;}
+  .panel-body{padding:1.2rem;}
+  .btn-row{flex-direction:column;}
+  .btn-back{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <a href="index.html" class="logo">AURA SKIN</a>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul id="navMenu">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#products">Products</a></li>
+    <li><a href="cart.html">Cart</a></li>
+    <li><a href="checkout.html" class="active">Checkout</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ HEADER ═══ -->
+<header class="page-header" id="pageHeader">
+  <h1>Checkout</h1>
+  <p class="header-sub">Complete your purchase</p>
+  <div class="divider">
+    <div class="line"></div>
+    <div class="diamond"></div>
+    <div class="line"></div>
+  </div>
+</header>
+
+<!-- ═══ STEP BAR ═══ -->
+<div class="steps" id="stepBar">
+  <div class="step active" data-step="1">
+    <div class="step-line"></div>
+    <div class="step-dot">1</div>
+    <div class="step-label">Contact</div>
+  </div>
+  <div class="step" data-step="2">
+    <div class="step-line"></div>
+    <div class="step-dot">2</div>
+    <div class="step-label">Shipping</div>
+  </div>
+  <div class="step" data-step="3">
+    <div class="step-line"></div>
+    <div class="step-dot">3</div>
+    <div class="step-label">Payment</div>
+  </div>
+  <div class="step" data-step="4">
+    <div class="step-dot">4</div>
+    <div class="step-label">Review</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN LAYOUT ═══ -->
+<div class="checkout-layout" id="checkoutLayout">
+
+  <!-- FORM PANELS -->
+  <div class="form-panels">
+
+    <!-- STEP 1: Contact -->
+    <div class="form-panel" id="panel1">
+      <div class="panel-head">
+        <h3>1 &nbsp; Contact Info</h3>
+        <span class="edit-link" data-open="1" style="display:none;">Edit</span>
+      </div>
+      <div class="panel-summary" id="summary1"></div>
+      <div class="panel-body open" id="body1">
+        <div class="field-row full">
+          <div class="field">
+            <label>Full Name</label>
+            <input type="text" id="fullName" placeholder="Jane Doe">
+            <span class="err-msg" id="errName">Please enter your full name</span>
+          </div>
+        </div>
+        <div class="field-row full">
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="jane@email.com">
+            <span class="err-msg" id="errEmail">Please enter a valid email</span>
+          </div>
+        </div>
+        <div class="field-row full">
+          <div class="field">
+            <label>Phone Number</label>
+            <input type="tel" id="phone" placeholder="+1 (555) 123-4567">
+            <span class="err-msg" id="errPhone">Please enter a valid phone number</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-next" data-next="2">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Shipping -->
+    <div class="form-panel" id="panel2">
+      <div class="panel-head">
+        <h3>2 &nbsp; Shipping Address</h3>
+        <span class="edit-link" data-open="2" style="display:none;">Edit</span>
+      </div>
+      <div class="panel-summary" id="summary2"></div>
+      <div class="panel-body" id="body2">
+        <div class="field-row">
+          <div class="field">
+            <label>Street Address</label>
+            <input type="text" id="addr1" placeholder="123 Main Street">
+            <span class="err-msg" id="errAddr1">Required</span>
+          </div>
+          <div class="field">
+            <label>Apt / Suite (optional)</label>
+            <input type="text" id="addr2" placeholder="Apt 4B">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>City</label>
+            <input type="text" id="city" placeholder="New York">
+            <span class="err-msg" id="errCity">Required</span>
+          </div>
+          <div class="field">
+            <label>State / Province</label>
+            <input type="text" id="state" placeholder="NY">
+            <span class="err-msg" id="errState">Required</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>ZIP / Postal Code</label>
+            <input type="text" id="zip" placeholder="10001">
+            <span class="err-msg" id="errZip">Required</span>
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <select id="country">
+              <option value="us">United States</option>
+              <option value="uk">United Kingdom</option>
+              <option value="ca">Canada</option>
+              <option value="au">Australia</option>
+              <option value="lk">Sri Lanka</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-back" data-prev="1">Back</button>
+          <button class="btn-next" data-next="3">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Payment -->
+    <div class="form-panel" id="panel3">
+      <div class="panel-head">
+        <h3>3 &nbsp; Payment Details</h3>
+        <span class="edit-link" data-open="3" style="display:none;">Edit</span>
+      </div>
+      <div class="panel-summary" id="summary3"></div>
+      <div class="panel-body" id="body3">
+
+        <!-- Payment method pills -->
+        <div class="pay-methods">
+          <div class="pay-pill active" id="pillBank">
+            <div class="pill-icon">🏦</div>
+            <span class="pill-label">Bank Transfer</span>
+          </div>
+          <div class="pay-pill soon" id="pillCard">
+            <div class="soon-tag">Coming Soon</div>
+            <div class="pill-icon">💳</div>
+            <span class="pill-label">Card Payment</span>
+          </div>
+          <div class="pay-pill soon" id="pillGoogle">
+            <div class="soon-tag">Coming Soon</div>
+            <div class="pill-icon">𝐆</div>
+            <span class="pill-label">Google Pay</span>
+          </div>
+        </div>
+
+        <!-- Bank details box -->
+        <div class="bank-box">
+          <div class="bank-title">🏦 &nbsp;Bank Account Details</div>
+          <div class="bank-row">
+            <span class="b-label">Account Name</span>
+            <span class="b-value">Aura Skin Beauty Ltd.</span>
+          </div>
+          <div class="bank-row">
+            <span class="b-label">Account Number</span>
+            <span class="b-value" id="accNum">94 – 7821 – 0045 – 6312
+              <button class="copy-btn" data-copy="947821004563 12" title="Copy">⎘ Copy</button>
+            </span>
+          </div>
+          <div class="bank-row">
+            <span class="b-label">Sort / Routing Code</span>
+            <span class="b-value" id="sortCode">20 – 45 – 88
+              <button class="copy-btn" data-copy="204588" title="Copy">⎘ Copy</button>
+            </span>
+          </div>
+          <div class="bank-row">
+            <span class="b-label">Reference</span>
+            <span class="b-value" id="refCode">AURA-<span id="dynRef">ORD001</span>
+              <button class="copy-btn" data-copy="" id="copyRef" title="Copy">⎘ Copy</button>
+            </span>
+          </div>
+        </div>
+
+        <!-- Instruction note -->
+        <div class="transfer-note">
+          <span class="note-icon">ℹ️</span>
+          <p>
+            Please transfer the <strong>exact total amount</strong> shown in your order summary
+            and use the <strong>Reference</strong> above as your payment description.
+            Once transferred, click <strong>"Place Order"</strong> — we will verify and send your receipt via WhatsApp.
+          </p>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" data-prev="2">Back</button>
+          <button class="btn-next" data-next="4">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Review -->
+    <div class="form-panel" id="panel4">
+      <div class="panel-head">
+        <h3>4 &nbsp; Review & Pay</h3>
+      </div>
+      <div class="panel-body" id="body4">
+        <div id="reviewSummary" style="font-size:0.8rem;color:var(--text-muted);line-height:2;"></div>
+        <div class="btn-row" style="margin-top:1.8rem;">
+          <button class="btn-back" data-prev="3">Back</button>
+          <button class="btn-next" id="payBtn" style="background:var(--gold);color:var(--white);">Place Order</button>
+        </div>
+        <div class="secure-badge">
+          <span>🔒</span> Your payment is secured with 256-bit SSL encryption
+        </div>
+      </div>
+    </div>
+
+  </div><!-- .form-panels -->
+
+  <!-- ORDER SUMMARY SIDEBAR -->
+  <aside class="order-summary">
+    <h3>Order Summary</h3>
+    <div id="summaryItems"></div>
+    <div class="summary-divider"></div>
+    <div class="summary-row"><span class="label">Subtotal</span><span class="value" id="chkSubtotal">—</span></div>
+    <div class="summary-row"><span class="label">Shipping</span><span class="value">Free</span></div>
+    <div class="summary-row"><span class="label">Tax (8%)</span><span class="value" id="chkTax">—</span></div>
+    <div class="summary-divider"></div>
+    <div class="summary-total">
+      <span class="label">Total</span>
+      <span class="value" id="chkTotal">—</span>
+    </div>
+  </aside>
+
+  <!-- CONFIRMATION -->
+  <div class="confirmation" id="confirmation">
+    <div class="confirm-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <h2>Order Placed!</h2>
+    <p>Thank you for your purchase. Please complete the bank transfer, then tap the button below — we'll send your receipt to your WhatsApp instantly.</p>
+    <div class="order-id" id="confirmOrderId">Order #AS-20260201-8847</div>
+
+    <!-- WhatsApp receipt button -->
+    <button class="wa-btn" id="waReceiptBtn">
+      <span class="wa-icon">📱</span> Send Receipt to WhatsApp
+    </button>
+
+    <br><br>
+    <a href="index.html" class="btn-home" style="animation-delay:0.7s;">Continue Shopping</a>
+  </div>
+
+</div><!-- .checkout-layout -->
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="logo-sm">AURA SKIN</div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="#">Shipping</a>
+      <a href="#">Returns</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="copy">&copy; 2026 Aura Skin. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- ═══ JS ═══ -->
+<script>
+(function(){
+
+  /* ── Read cart from sessionStorage ── */
+  var cartItems;
+  try { 
+    cartItems = JSON.parse(sessionStorage.getItem('auraSkinCart')); 
+  } catch(e){ 
+    cartItems = null; 
+  }
+  
+  // Redirect to cart if empty
+  if(!cartItems || cartItems.length === 0){
+    alert('Your cart is empty! Please add some products first.');
+    window.location.href = 'index.html#products';
+    return;
+  }
+
+  /* ── Compute totals helper ── */
+  function calcTotals(){
+    var sub = 0;
+    cartItems.forEach(function(item){ sub += item.price * item.qty; });
+    var tax   = sub * 0.08;
+    var total = sub + tax;
+    return { subtotal: sub, tax: tax, total: total };
+  }
+
+  /* ── Render order summary sidebar ── */
+  function renderSummary(){
+    var container = document.getElementById('summaryItems');
+    var html = '';
+    cartItems.forEach(function(item){
+      html +=
+        '<div class="summary-item">'+
+          '<div class="s-img"><img src="'+ item.img +'" alt="'+ item.name +'"></div>'+
+          '<div class="s-info"><h5>'+ item.name +'</h5><span>×'+ item.qty +'</span></div>'+
+          '<div class="s-price">$'+ (item.price * item.qty).toFixed(2) +'</div>'+
+        '</div>';
+    });
+    container.innerHTML = html;
+
+    var t = calcTotals();
+    document.getElementById('chkSubtotal').textContent = '$' + t.subtotal.toFixed(2);
+    document.getElementById('chkTax').textContent      = '$' + t.tax.toFixed(2);
+    document.getElementById('chkTotal').textContent    = '$' + t.total.toFixed(2);
+  }
+  renderSummary();
+
+  /* ── Hamburger ── */
+  var hBtn = document.getElementById('hamburgerBtn');
+  var menu = document.getElementById('navMenu');
+  hBtn.addEventListener('click', function(){
+    hBtn.classList.toggle('active');
+    menu.classList.toggle('open');
+  });
+  menu.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      hBtn.classList.remove('active');
+      menu.classList.remove('open');
+    });
+  });
+
+  /* ── Generate unique order ref ── */
+  var orderNum   = 'ORD' + (1000 + Math.floor(Math.random()*9000));
+  var fullOrderId = 'AS-20260201-' + orderNum.replace('ORD','');
+  document.getElementById('dynRef').textContent = orderNum;
+  document.getElementById('copyRef').dataset.copy = 'AURA-' + orderNum;
+
+  /* ── Phone input mask ── */
+  document.getElementById('phone').addEventListener('input', function(e){
+    e.target.value = e.target.value.replace(/[^\d+\s\-()]/g,'');
+  });
+
+  /* ── Copy-to-clipboard buttons ── */
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var text = btn.dataset.copy;
+      navigator.clipboard.writeText(text).then(function(){
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        setTimeout(function(){
+          btn.textContent = '⎘ Copy';
+          btn.classList.remove('copied');
+        }, 1400);
+      });
+    });
+  });
+
+  /* ── Validation ── */
+  function showErr(id, show){
+    var el = document.getElementById(id);
+    if(el) el.classList.toggle('show', show);
+  }
+  function setErr(inputEl, hasErr){
+    inputEl.classList.toggle('error', hasErr);
+  }
+
+  function validateStep(step){
+    var ok = true;
+    if(step === 1){
+      var name  = document.getElementById('fullName').value.trim();
+      var email = document.getElementById('email').value.trim();
+      var phone = document.getElementById('phone').value.trim();
+      setErr(document.getElementById('fullName'), !name);
+      showErr('errName', !name);
+      if(!name) ok = false;
+      var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      setErr(document.getElementById('email'), !emailOk);
+      showErr('errEmail', !emailOk);
+      if(!emailOk) ok = false;
+      var phoneOk = phone.replace(/\D/g,'').length >= 7;
+      setErr(document.getElementById('phone'), !phoneOk);
+      showErr('errPhone', !phoneOk);
+      if(!phoneOk) ok = false;
+    }
+    if(step === 2){
+      ['addr1','city','state','zip'].forEach(function(id){
+        var v = document.getElementById(id).value.trim();
+        setErr(document.getElementById(id), !v);
+        showErr('err'+ id.charAt(0).toUpperCase()+ id.slice(1), !v);
+        if(!v) ok = false;
+      });
+    }
+    return ok;
+  }
+
+  /* ── Step navigation ── */
+  var currentStep = 1;
+
+  function goToStep(target){
+    document.getElementById('body'+currentStep).classList.remove('open');
+    buildSummary(currentStep);
+    document.getElementById('summary'+currentStep).classList.add('show');
+    var editCur = document.querySelector('[data-open="'+currentStep+'"]');
+    if(editCur) editCur.style.display = 'inline';
+
+    document.getElementById('body'+target).classList.add('open');
+    document.getElementById('summary'+target).classList.remove('show');
+    var editTgt = document.querySelector('[data-open="'+target+'"]');
+    if(editTgt) editTgt.style.display = 'none';
+
+    document.querySelectorAll('.step').forEach(function(s){
+      var n = parseInt(s.dataset.step);
+      s.classList.remove('done','active');
+      if(n < target) s.classList.add('done');
+      if(n === target) s.classList.add('active');
+      s.querySelector('.step-dot').textContent = (n < target) ? '✓' : n;
+    });
+    document.querySelectorAll('.step-line').forEach(function(line, i){
+      line.classList.toggle('done', i < target - 1);
+    });
+
+    currentStep = target;
+    if(target === 4) buildReview();
+  }
+
+  /* ── Collapsed-panel summary builders ── */
+  function buildSummary(step){
+    var el = document.getElementById('summary'+step);
+    if(!el) return;
+    if(step===1){
+      el.innerHTML = document.getElementById('fullName').value +
+        ' &nbsp;|&nbsp; ' + document.getElementById('email').value +
+        ' &nbsp;|&nbsp; ' + document.getElementById('phone').value;
+    }
+    if(step===2){
+      el.innerHTML = document.getElementById('addr1').value +
+        (document.getElementById('addr2').value ? ', '+document.getElementById('addr2').value : '') +
+        ', ' + document.getElementById('city').value +
+        ' ' + document.getElementById('state').value +
+        ' ' + document.getElementById('zip').value +
+        ', ' + document.getElementById('country').options[document.getElementById('country').selectedIndex].text;
+    }
+    if(step===3){
+      el.innerHTML = '🏦 Bank Transfer &nbsp;|&nbsp; Ref: AURA-' + orderNum;
+    }
+  }
+
+  /* ── Step 4 Review screen ── */
+  function buildReview(){
+    var s = function(id){ return document.getElementById(id).value; };
+    var t = calcTotals();
+    var html = '<div style="display:flex;flex-direction:column;gap:1rem;">';
+
+    html += '<div><div style="font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:4px;">Contact</div>'+
+            s('fullName')+'<br>'+s('email')+'<br>'+s('phone')+'</div>';
+    html += '<hr style="border:none;border-top:1px solid var(--gray-mid);">';
+
+    html += '<div><div style="font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:4px;">Shipping</div>'+
+            s('addr1')+(s('addr2') ? ', '+s('addr2') : '')+', '+s('city')+' '+s('state')+' '+s('zip')+'</div>';
+    html += '<hr style="border:none;border-top:1px solid var(--gray-mid);">';
+
+    html += '<div><div style="font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:4px;">Items</div>';
+    cartItems.forEach(function(item){
+      html += '• ' + item.name + ' ×' + item.qty + ' — $' + (item.price*item.qty).toFixed(2) + '<br>';
+    });
+    html += '</div>';
+    html += '<hr style="border:none;border-top:1px solid var(--gray-mid);">';
+
+    html += '<div><div style="font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:4px;">Payment</div>'+
+            '🏦 Bank Transfer<br>Ref: <strong>AURA-'+orderNum+'</strong><br>Total: <strong>$'+t.total.toFixed(2)+'</strong></div>';
+    html += '</div>';
+
+    document.getElementById('reviewSummary').innerHTML = html;
+  }
+
+  /* ── WhatsApp receipt ── */
+  function buildReceiptMessage(){
+    var s   = function(id){ return document.getElementById(id).value; };
+    var t   = calcTotals();
+    var date = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+
+    var itemLines = '';
+    cartItems.forEach(function(item){
+      var line = (item.price * item.qty).toFixed(2);
+      var pad = item.name + ' ×' + item.qty;
+      while(pad.length < 30) pad += ' ';
+      itemLines += '  • ' + pad + '— $' + line + '\n';
+    });
+
+    var msg =
+      '✨ AURA SKIN — Order Receipt ✨\n'+
+      '─────────────────────────\n'+
+      'Order ID : ' + fullOrderId + '\n'+
+      'Date     : ' + date + '\n'+
+      '─────────────────────────\n'+
+      '📦 Items Ordered:\n'+
+      itemLines +
+      '─────────────────────────\n'+
+      'Subtotal   : $' + t.subtotal.toFixed(2) + '\n'+
+      'Shipping   : Free\n'+
+      'Tax (8%)   : $' + t.tax.toFixed(2) + '\n'+
+      'TOTAL      : $' + t.total.toFixed(2) + '\n'+
+      '─────────────────────────\n'+
+      '💳 Payment : Bank Transfer\n'+
+      'Reference  : AURA-' + orderNum + '\n'+
+      '─────────────────────────\n'+
+      '📍 Shipping To:\n'+
+      s('fullName')+ '\n'+
+      s('addr1')+ (s('addr2') ? ', '+s('addr2') : '') +'\n'+
+      s('city')+' '+s('state')+' '+s('zip')+'\n'+
+      '─────────────────────────\n'+
+      '📧 ' + s('email') + '\n'+
+      'Thank you for shopping with Aura Skin! ✨';
+    return msg;
+  }
+
+  /* ── Click delegation ── */
+  document.addEventListener('click', function(e){
+    var nextBtn = e.target.closest('[data-next]');
+    if(nextBtn){
+      if(validateStep(currentStep)) goToStep(parseInt(nextBtn.dataset.next));
+      return;
+    }
+    var prevBtn = e.target.closest('[data-prev]');
+    if(prevBtn){
+      goToStep(parseInt(prevBtn.dataset.prev));
+      return;
+    }
+    var editLink = e.target.closest('[data-open]');
+    if(editLink){
+      goToStep(parseInt(editLink.dataset.open));
+      return;
+    }
+    if(e.target.id === 'payBtn'){
+      e.target.textContent = 'Processing…';
+      e.target.style.opacity = '0.6';
+      e.target.style.pointerEvents = 'none';
+      setTimeout(function(){
+        document.getElementById('pageHeader').style.display   = 'none';
+        document.getElementById('stepBar').style.display      = 'none';
+        document.querySelector('.form-panels').style.display  = 'none';
+        document.querySelector('.order-summary').style.display= 'none';
+        document.getElementById('confirmOrderId').textContent = 'Order #' + fullOrderId;
+        document.getElementById('confirmation').classList.add('show');
+        sessionStorage.removeItem('auraSkinCart');
+      }, 1800);
+    }
+    if(e.target.id === 'waReceiptBtn' || e.target.closest('#waReceiptBtn')){
+      var msg  = buildReceiptMessage();
+      var phone = '94765775804';
+      var url  = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(msg);
+      window.open(url, '_blank');
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
