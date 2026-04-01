@@ -360,6 +360,11 @@ onValue(connRef, snap => {
   }
 });
 
+// ── LOAD SAVED CREDENTIALS FROM FIREBASE ──
+get(ref(db, 'adminCredentials')).then(snap => {
+  if (snap.exists()) { ADMIN = snap.val(); }
+}).catch(() => {});
+
 // ── LOGIN ──
 function doLogin() {
   const u = document.getElementById('loginUser').value.trim();
@@ -563,14 +568,27 @@ window.updateOrderStatus = function(id, status) { showToast('Order ' + id + ' up
 
 // ── SETTINGS ──
 window.saveSettings = function() { showToast('Store settings saved'); };
-window.saveAdmin = function() {
+
+window.saveAdmin = async function() {
   const u = document.getElementById('adminUser').value.trim();
   const p = document.getElementById('adminPass').value.trim();
-  if (u) ADMIN.user = u;
-  if (p) ADMIN.pass = p;
-  document.getElementById('adminPass').value = '';
-  showToast('Admin account updated');
+
+  if (!u) { showToast('Username cannot be empty', '#e74c3c'); return; }
+
+  const newCreds = { user: u, pass: p ? p : ADMIN.pass };
+
+  try {
+    await set(ref(db, 'adminCredentials'), newCreds);
+    ADMIN.user = newCreds.user;
+    ADMIN.pass = newCreds.pass;
+    document.getElementById('adminPass').value = '';
+    showToast('Admin account updated & saved! ✓');
+  } catch(err) {
+    showToast('Error saving credentials', '#e74c3c');
+    console.error(err);
+  }
 };
+
 window.savePricing = function() { showToast('Pricing settings saved'); };
 
 // ── TOAST ──
