@@ -1,3 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="loginOverlay">
+  <h2>Login</h2>
+  <input id="loginUser" placeholder="Username"><br><br>
+  <input id="loginPass" type="password" placeholder="Password"><br><br>
+  <button id="loginBtn">Login</button>
+  <p id="loginError" style="color:red; display:none;">Wrong credentials</p>
+</div>
+
+<!-- ── APP ── -->
+<div id="appDiv" style="display:none;">
+
+  <h2>Admin Panel</h2>
+  <button onclick="doLogout()">Logout</button>
+
+  <p>Date: <span id="currentDate"></span></p>
+
+  <h3>Products</h3>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="productsBody"></tbody>
+  </table>
+
+  <h3>Add / Edit Product</h3>
+  <input id="editId" placeholder="ID (auto if empty)"><br><br>
+  <input id="editName" placeholder="Name"><br><br>
+  <input id="editPrice" placeholder="Price"><br><br>
+  <input id="editStatus" placeholder="Status"><br><br>
+  <button onclick="saveProduct()">Save Product</button>
+
+  <h3>Admin Settings</h3>
+  <input id="adminUser" placeholder="New Username"><br><br>
+  <input id="adminPass" type="password" placeholder="New Password"><br><br>
+  <button onclick="saveAdmin()">Update Admin</button>
+
+</div>
+
+<!-- ── SCRIPT ── -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -12,18 +65,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// ── ELEMENTS ──
+const loginUser = document.getElementById("loginUser");
+const loginPass = document.getElementById("loginPass");
+const loginBtn = document.getElementById("loginBtn");
+const loginError = document.getElementById("loginError");
+
+const loginOverlay = document.getElementById("loginOverlay");
+const appDiv = document.getElementById("appDiv");
+
+const productsBody = document.getElementById("productsBody");
+
+const currentDate = document.getElementById("currentDate");
+
+const editId = document.getElementById("editId");
+const editName = document.getElementById("editName");
+const editPrice = document.getElementById("editPrice");
+const editStatus = document.getElementById("editStatus");
+
+const adminUser = document.getElementById("adminUser");
+const adminPass = document.getElementById("adminPass");
+
 // ── ADMIN ──
-let ADMIN = { user: "Haley971", pass: "Dew@12345" };
+let ADMIN = { user: "admin", pass: "admin123" };
 let adminLoaded = false;
 
-// 🔥 REALTIME ADMIN SYNC (FIXED)
 onValue(ref(db, "adminCredentials"), snap => {
   if (snap.exists()) {
     ADMIN = snap.val();
     adminLoaded = true;
     console.log("✅ ADMIN LOADED:", ADMIN);
-  } else {
-    console.log("⚠️ No admin found in DB");
   }
 });
 
@@ -31,7 +102,7 @@ onValue(ref(db, "adminCredentials"), snap => {
 function doLogin() {
 
   if (!adminLoaded) {
-    alert("⏳ Connecting to database... please wait");
+    alert("⏳ Loading...");
     return;
   }
 
@@ -44,20 +115,16 @@ function doLogin() {
     initApp();
   } else {
     loginError.style.display = "block";
-    loginPass.value = "";
   }
 }
 
-window.doLogout = function () {
-  loginOverlay.style.display = "flex";
-  appDiv.style.display = "none";
-  loginUser.value = "";
-  loginPass.value = "";
-};
-
 loginBtn.onclick = doLogin;
-loginPass.onkeydown = e => e.key === "Enter" && doLogin();
-loginUser.onkeydown = e => e.key === "Enter" && doLogin();
+
+// ── LOGOUT ──
+window.doLogout = function () {
+  loginOverlay.style.display = "block";
+  appDiv.style.display = "none";
+};
 
 // ── INIT ──
 function initApp() {
@@ -76,21 +143,19 @@ function listenProducts() {
 }
 
 function renderProducts() {
-  const tbody = productsBody;
   const list = Object.values(allProducts);
 
   if (!list.length) {
-    tbody.innerHTML = "<tr><td colspan='5'>No products</td></tr>";
+    productsBody.innerHTML = "<tr><td colspan='4'>No products</td></tr>";
     return;
   }
 
-  tbody.innerHTML = list.map(p => `
+  productsBody.innerHTML = list.map(p => `
     <tr>
       <td>${p.name}</td>
-      <td>$${p.price}</td>
+      <td>${p.price}</td>
       <td>${p.status}</td>
       <td>
-        <button onclick="editProduct('${p.id}')">Edit</button>
         <button onclick="deleteProduct('${p.id}')">Delete</button>
       </td>
     </tr>
@@ -109,48 +174,36 @@ window.saveProduct = async function () {
   };
 
   await set(ref(db, "products/" + id), data);
-  alert("✅ Product saved");
+  alert("Saved");
 };
 
-// ── DELETE PRODUCT ──
+// ── DELETE ──
 window.deleteProduct = async function (id) {
   await remove(ref(db, "products/" + id));
-  alert("🗑️ Product deleted");
 };
 
-// ── 🔥 PASSWORD UPDATE (FIXED) ──
+// ── SAVE ADMIN ──
 window.saveAdmin = async function () {
   const u = adminUser.value.trim();
   const p = adminPass.value.trim();
 
-  if (!u) {
-    alert("Username required");
+  if (!u || !p) {
+    alert("Fill both fields");
     return;
   }
 
-  const newCreds = {
-    user: u,
-    pass: p ? p : ADMIN.pass
-  };
+  const newCreds = { user: u, pass: p };
 
-  console.log("💾 Saving:", newCreds);
+  await set(ref(db, "adminCredentials"), newCreds);
 
-  try {
-    await set(ref(db, "adminCredentials"), newCreds);
+  ADMIN = newCreds;
 
-    ADMIN = newCreds;
-    adminPass.value = "";
+  alert("Updated! Please login again");
 
-    alert("✅ Updated! Please login again");
-
-    // 🔥 FORCE LOGOUT
-    setTimeout(() => {
-      doLogout();
-    }, 500);
-
-  } catch (err) {
-    console.error(err);
-    alert("❌ Error saving");
-  }
+  doLogout();
 };
+
 </script>
+
+</body>
+</html>
