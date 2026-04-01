@@ -17,7 +17,6 @@
 
 <!-- ── APP ── -->
 <div id="appDiv" style="display:none;">
-
   <h2>Admin Panel</h2>
   <button onclick="doLogout()">Logout</button>
 
@@ -37,171 +36,185 @@
   </table>
 
   <h3>Add / Edit Product</h3>
-  <input id="editId" placeholder="ID (auto if empty)"><br><br>
+  <input id="editId" placeholder="ID"><br><br>
   <input id="editName" placeholder="Name"><br><br>
   <input id="editPrice" placeholder="Price"><br><br>
   <input id="editStatus" placeholder="Status"><br><br>
-  <button onclick="saveProduct()">Save Product</button>
+  <button id="saveProductBtn">Save Product</button>
 
   <h3>Admin Settings</h3>
   <input id="adminUser" placeholder="New Username"><br><br>
   <input id="adminPass" type="password" placeholder="New Password"><br><br>
-  <button onclick="saveAdmin()">Update Admin</button>
-
+  <button id="saveAdminBtn">Update Admin</button>
 </div>
 
 <!-- ── SCRIPT ── -->
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBBkXa1g7xtFNQv2AbH5I5DC-HJICs-ZC8",
-  authDomain: "aura-skin-c93f3.firebaseapp.com",
-  databaseURL: "https://aura-skin-c93f3-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "aura-skin-c93f3",
-};
+document.addEventListener("DOMContentLoaded", () => {
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// ── ELEMENTS ──
-const loginUser = document.getElementById("loginUser");
-const loginPass = document.getElementById("loginPass");
-const loginBtn = document.getElementById("loginBtn");
-const loginError = document.getElementById("loginError");
-
-const loginOverlay = document.getElementById("loginOverlay");
-const appDiv = document.getElementById("appDiv");
-
-const productsBody = document.getElementById("productsBody");
-
-const currentDate = document.getElementById("currentDate");
-
-const editId = document.getElementById("editId");
-const editName = document.getElementById("editName");
-const editPrice = document.getElementById("editPrice");
-const editStatus = document.getElementById("editStatus");
-
-const adminUser = document.getElementById("adminUser");
-const adminPass = document.getElementById("adminPass");
-
-// ── ADMIN ──
-let ADMIN = { user: "admin", pass: "admin123" };
-let adminLoaded = false;
-
-onValue(ref(db, "adminCredentials"), snap => {
-  if (snap.exists()) {
-    ADMIN = snap.val();
-    adminLoaded = true;
-    console.log("✅ ADMIN LOADED:", ADMIN);
-  }
-});
-
-// ── LOGIN ──
-function doLogin() {
-
-  if (!adminLoaded) {
-    alert("⏳ Loading...");
-    return;
-  }
-
-  const u = loginUser.value.trim();
-  const p = loginPass.value.trim();
-
-  if (u === ADMIN.user && p === ADMIN.pass) {
-    loginOverlay.style.display = "none";
-    appDiv.style.display = "block";
-    initApp();
-  } else {
-    loginError.style.display = "block";
-  }
-}
-
-loginBtn.onclick = doLogin;
-
-// ── LOGOUT ──
-window.doLogout = function () {
-  loginOverlay.style.display = "block";
-  appDiv.style.display = "none";
-};
-
-// ── INIT ──
-function initApp() {
-  currentDate.textContent = new Date().toLocaleDateString();
-  listenProducts();
-}
-
-// ── PRODUCTS ──
-let allProducts = {};
-
-function listenProducts() {
-  onValue(ref(db, "products"), snap => {
-    allProducts = snap.val() || {};
-    renderProducts();
-  });
-}
-
-function renderProducts() {
-  const list = Object.values(allProducts);
-
-  if (!list.length) {
-    productsBody.innerHTML = "<tr><td colspan='4'>No products</td></tr>";
-    return;
-  }
-
-  productsBody.innerHTML = list.map(p => `
-    <tr>
-      <td>${p.name}</td>
-      <td>${p.price}</td>
-      <td>${p.status}</td>
-      <td>
-        <button onclick="deleteProduct('${p.id}')">Delete</button>
-      </td>
-    </tr>
-  `).join("");
-}
-
-// ── SAVE PRODUCT ──
-window.saveProduct = async function () {
-  const id = editId.value || Date.now().toString();
-
-  const data = {
-    id,
-    name: editName.value,
-    price: editPrice.value,
-    status: editStatus.value
+  const firebaseConfig = {
+    apiKey: "AIzaSyBBkXa1g7xtFNQv2AbH5I5DC-HJICs-ZC8",
+    authDomain: "aura-skin-c93f3.firebaseapp.com",
+    databaseURL: "https://aura-skin-c93f3-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "aura-skin-c93f3",
   };
 
-  await set(ref(db, "products/" + id), data);
-  alert("Saved");
-};
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-// ── DELETE ──
-window.deleteProduct = async function (id) {
-  await remove(ref(db, "products/" + id));
-};
+  // ── ELEMENTS ──
+  const loginUser = document.getElementById("loginUser");
+  const loginPass = document.getElementById("loginPass");
+  const loginBtn = document.getElementById("loginBtn");
+  const loginError = document.getElementById("loginError");
 
-// ── SAVE ADMIN ──
-window.saveAdmin = async function () {
-  const u = adminUser.value.trim();
-  const p = adminPass.value.trim();
+  const loginOverlay = document.getElementById("loginOverlay");
+  const appDiv = document.getElementById("appDiv");
 
-  if (!u || !p) {
-    alert("Fill both fields");
-    return;
+  const productsBody = document.getElementById("productsBody");
+
+  const currentDate = document.getElementById("currentDate");
+
+  const editId = document.getElementById("editId");
+  const editName = document.getElementById("editName");
+  const editPrice = document.getElementById("editPrice");
+  const editStatus = document.getElementById("editStatus");
+
+  const adminUser = document.getElementById("adminUser");
+  const adminPass = document.getElementById("adminPass");
+
+  // ── ADMIN ──
+  let ADMIN = { user: "admin", pass: "admin123" };
+  let adminLoaded = false;
+
+  onValue(ref(db, "adminCredentials"), snap => {
+    if (snap.exists()) {
+      ADMIN = snap.val();
+      adminLoaded = true;
+      console.log("✅ ADMIN LOADED:", ADMIN);
+    }
+  });
+
+  // ── LOGIN ──
+  function doLogin() {
+
+    if (!adminLoaded) {
+      alert("⏳ Loading...");
+      return;
+    }
+
+    const u = loginUser.value.trim();
+    const p = loginPass.value.trim();
+
+    if (u === ADMIN.user && p === ADMIN.pass) {
+      loginOverlay.style.display = "none";
+      appDiv.style.display = "block";
+      initApp();
+    } else {
+      loginError.style.display = "block";
+    }
   }
 
-  const newCreds = { user: u, pass: p };
+  loginBtn.addEventListener("click", doLogin);
 
-  await set(ref(db, "adminCredentials"), newCreds);
+  // Enter key login
+  loginPass.addEventListener("keydown", e => {
+    if (e.key === "Enter") doLogin();
+  });
 
-  ADMIN = newCreds;
+  loginUser.addEventListener("keydown", e => {
+    if (e.key === "Enter") doLogin();
+  });
 
-  alert("Updated! Please login again");
+  // ── LOGOUT ──
+  window.doLogout = function () {
+    loginOverlay.style.display = "block";
+    appDiv.style.display = "none";
+  };
 
-  doLogout();
-};
+  // ── INIT ──
+  function initApp() {
+    currentDate.textContent = new Date().toLocaleDateString();
+    listenProducts();
+  }
+
+  // ── PRODUCTS ──
+  let allProducts = {};
+
+  function listenProducts() {
+    onValue(ref(db, "products"), snap => {
+      allProducts = snap.val() || {};
+      renderProducts();
+    });
+  }
+
+  function renderProducts() {
+    const list = Object.values(allProducts);
+
+    if (!list.length) {
+      productsBody.innerHTML = "<tr><td colspan='4'>No products</td></tr>";
+      return;
+    }
+
+    productsBody.innerHTML = list.map(p => `
+      <tr>
+        <td>${p.name}</td>
+        <td>${p.price}</td>
+        <td>${p.status}</td>
+        <td>
+          <button onclick="deleteProduct('${p.id}')">Delete</button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  // ── SAVE PRODUCT ──
+  document.getElementById("saveProductBtn").onclick = async function () {
+    const id = editId.value || Date.now().toString();
+
+    const data = {
+      id,
+      name: editName.value,
+      price: editPrice.value,
+      status: editStatus.value
+    };
+
+    await set(ref(db, "products/" + id), data);
+    alert("Saved");
+  };
+
+  // ── DELETE ──
+  window.deleteProduct = async function (id) {
+    await remove(ref(db, "products/" + id));
+  };
+
+  // ── SAVE ADMIN ──
+  document.getElementById("saveAdminBtn").onclick = async function () {
+
+    const u = adminUser.value.trim();
+    const p = adminPass.value.trim();
+
+    if (!u || !p) {
+      alert("Fill both fields");
+      return;
+    }
+
+    const newCreds = { user: u, pass: p };
+
+    await set(ref(db, "adminCredentials"), newCreds);
+
+    ADMIN = newCreds;
+
+    alert("Updated! Please login again");
+
+    doLogout();
+  };
+
+});
 
 </script>
 
