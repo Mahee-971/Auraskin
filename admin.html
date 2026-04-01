@@ -14,17 +14,27 @@ const db = getDatabase(app);
 
 // ── ADMIN ──
 let ADMIN = { user: "admin", pass: "admin123" };
+let adminLoaded = false;
 
 // 🔥 REALTIME ADMIN SYNC (FIXED)
 onValue(ref(db, "adminCredentials"), snap => {
   if (snap.exists()) {
     ADMIN = snap.val();
-    console.log("✅ ADMIN UPDATED:", ADMIN);
+    adminLoaded = true;
+    console.log("✅ ADMIN LOADED:", ADMIN);
+  } else {
+    console.log("⚠️ No admin found in DB");
   }
 });
 
 // ── LOGIN ──
 function doLogin() {
+
+  if (!adminLoaded) {
+    alert("⏳ Connecting to database... please wait");
+    return;
+  }
+
   const u = loginUser.value.trim();
   const p = loginPass.value.trim();
 
@@ -37,6 +47,7 @@ function doLogin() {
     loginPass.value = "";
   }
 }
+
 window.doLogout = function () {
   loginOverlay.style.display = "flex";
   appDiv.style.display = "none";
@@ -98,15 +109,16 @@ window.saveProduct = async function () {
   };
 
   await set(ref(db, "products/" + id), data);
-  alert("Saved");
+  alert("✅ Product saved");
 };
 
-// ── DELETE ──
+// ── DELETE PRODUCT ──
 window.deleteProduct = async function (id) {
   await remove(ref(db, "products/" + id));
+  alert("🗑️ Product deleted");
 };
 
-// ── 🔥 FIXED PASSWORD UPDATE ──
+// ── 🔥 PASSWORD UPDATE (FIXED) ──
 window.saveAdmin = async function () {
   const u = adminUser.value.trim();
   const p = adminPass.value.trim();
@@ -127,7 +139,6 @@ window.saveAdmin = async function () {
     await set(ref(db, "adminCredentials"), newCreds);
 
     ADMIN = newCreds;
-
     adminPass.value = "";
 
     alert("✅ Updated! Please login again");
@@ -139,7 +150,7 @@ window.saveAdmin = async function () {
 
   } catch (err) {
     console.error(err);
-    alert("Error saving");
+    alert("❌ Error saving");
   }
 };
 </script>
